@@ -1,0 +1,142 @@
+﻿@page
+@model IndexModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Energy Data Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin: 15px 0 5px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f4f4f4;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+            table th, table td {
+                text-align: left;
+                padding: 8px;
+                border: 1px solid #ddd;
+            }
+
+            table th {
+                background-color: #f4f4f4;
+                font-weight: bold;
+            }
+
+        .info-section {
+            margin-top: 30px;
+        }
+
+            .info-section h2 {
+                color: #555;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Energy Data Viewer</h1>
+        <form method="post">
+            <label for="year">Year:</label>
+            <select id="year" name="SelectedYear" asp-for="SelectedYear">
+                <option value="" disabled selected>Select a year</option>
+                @foreach (var year in Model.Years)
+                {
+                    <option value="@year">@year</option>
+                }
+            </select>
+
+            <label for="state">State:</label>
+            <select id="state" name="SelectedState" asp-for="SelectedState">
+                <option value="" disabled selected>Select a state</option>
+                @foreach (var state in Model.States)
+                {
+                    <option value="@state.Key">@state.Value (@state.Key)</option>
+                }
+            </select>
+
+            <button type="submit" formmethod="get">Submit</button>
+        </form>
+
+        @if (!string.IsNullOrEmpty(Model.SelectedYear) && !string.IsNullOrEmpty(Model.SelectedState))
+        {
+            <div class="info-section">
+                <h2>Selected Year: @Model.SelectedYear</h2>
+                <h2>Selected State: @Model.States[Model.SelectedState]</h2>
+
+                <h2>Energy Data</h2>
+                <table>
+                    <tr>
+                        <th>Description</th>
+                        <th>Value (In Megawatthours)</th>
+                    </tr>
+                    @foreach (var prop in Model.EnergyInfo.GetType().GetProperties())
+                    {
+                        var propName = prop.Name;
+                        if (EnergyInfo.PropertyDescriptions.ContainsKey(propName))
+                        {
+                            var displayName = EnergyInfo.PropertyDescriptions[propName];
+                            <tr>
+                                <td>@displayName</td>
+                                <td>@prop.GetValue(Model.EnergyInfo)</td>
+                            </tr>
+                        }
+                    }
+                </table>
+            </div>
+        }
+    </div>
+</body>
+</html>
